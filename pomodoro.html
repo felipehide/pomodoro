@@ -1,0 +1,255 @@
+<html>
+
+<body>
+    <h1>Pomodoro</h1>
+
+    <div>
+        <h2>Set work time:</h2>
+        <input id="work-min" value="25"></input id="work-sec">min <input value="0"></input>sec
+        <button id="set-work">set</button>
+        <h2>Set rest time:</h2>
+        <input  id="rest-min" value="5"></input id="rest-sec">min <input value="0"></input>sec
+        <button id="set-rest">set</button>
+    </div>
+
+    <h2>Status</h2>
+    <p id="status">New Timer</p>
+    
+    <h2>Timer</h2>
+    <p id="timer">Timer</p>
+    <button id="button">Start</button>
+
+    <h2>Rest Bank</h2>
+    <p id="rest-bank">Rest Bank</p>
+
+    
+    <script>
+        
+        // var work_timer = 25*60*1000;
+        var work_timer = 10*1000;
+        var work_left = work_timer;
+        // var rest_timer = 5*60*1000;
+        var rest_timer = 5*1000;
+        var rest_bank = 0;
+        
+        // 0 = Paused, waiting for work
+        // 1 = Counting Down Work
+        // 2 = Stocking Rest
+        // 3 = Paused, waiting for rest
+        // 4 = Resting
+        var status_flag = 0;
+        
+        // function countdown(distance) {
+            
+        //     var start = Date.now();
+        //     var interval = start + distance;
+            
+        //     // Changes the text of the button to "Pause"
+        //     document.getElementById("button").innerHTML = "Pause";
+
+        //     // Update the count down every 1 second
+        //     var x = setInterval(function() {
+                
+        //         now = Date.now();
+        //         var remaining = interval-now;
+                
+        //         // Time calculations for days, hours, minutes and seconds
+        //         var hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        //         var minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        //         var seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                
+        //         // Display the result in the element with id="timer"
+        //         document.getElementById("timer").innerHTML = hours + "h " + minutes + "m " + seconds + "s ";
+                
+        //         // Countdown has finished
+        //         if (remaining < 0) {
+        //             clearInterval(x);
+        //             document.getElementById("timer").innerHTML = "EXPIRED";
+        //             timer_callback();
+        //             // status_flag = (status_flag + 1)%2;
+        //             // console.log(status_flag);
+        //         }
+        //     }, 1000);
+        // }
+        
+        // function countup() {
+
+        //     start = Date.now();
+        //     var rest_timer_h = Math.floor((rest_timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        //     var rest_timer_m = Math.floor((rest_timer % (1000 * 60 * 60)) / (1000 * 60));
+        //     var rest_timer_s = Math.floor((rest_timer % (1000 * 60)) / 1000);
+
+        //     var x = setInterval(function() {
+
+        //         now = Date.now();
+        //         var remaining = now-start;
+
+        //         // Time calculations for days, hours, minutes and seconds
+        //         var hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        //         var minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        //         var seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+        //         rest_bank = remaining;
+
+        //         document.getElementById("rest-bank").innerHTML = 
+        //         rest_timer_h + "h " + rest_timer_m + "m " + rest_timer_s + "s " 
+        //         + " + " +
+        //         hours + "h " + minutes + "m " + seconds + "s ";
+
+        //     }, 1000);
+        // }
+
+        var Timer = {
+            remaining: 0,
+            start: function (total) {
+                var start = Date.now();
+                var wasd = start + total;
+
+                var interval = setInterval (function () {
+                    now = Date.now();
+                    this.remaining = wasd-now;
+                    work_left = this.remaining;
+
+                    hours = Math.floor((this.remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    minutes = Math.floor((this.remaining % (1000 * 60 * 60)) / (1000 * 60));
+                    seconds = Math.floor((this.remaining % (1000 * 60)) / 1000);
+
+                    // Display the result in the element with id="timer"
+                    document.getElementById("timer").innerHTML = hours + "h " + minutes + "m " + seconds + "s ";
+                    
+                    // Countdown has finished
+                    if (remaining < 0) {
+                        clearInterval(interval);
+                        delete interval;
+                        document.getElementById("timer").innerHTML = "EXPIRED";
+                        console.log("countdown has finished on status " + status_flag);
+                        timer_callback();
+                    }
+
+                }, 1000);
+            },
+
+            pause: function() {
+                clearInterval(this.interval);
+                delete this.interval;
+            },
+
+            resume: function(total) {
+                if (!this.interval) this.start(total);
+            }
+        };
+
+        var Counter = {
+            accumulated: 0,
+            start: function (rest_timer) {
+                var start = Date.now();
+
+                var rest_timer_h = Math.floor((rest_timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var rest_timer_m = Math.floor((rest_timer % (1000 * 60 * 60)) / (1000 * 60));
+                var rest_timer_s = Math.floor((rest_timer % (1000 * 60)) / 1000);
+
+                this.interval = setInterval (function () {
+                    now = Date.now();
+                    this.accumulated = now-start;
+                    rest_bank = accumulated;
+
+                    hours = Math.floor((this.accumulated % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    minutes = Math.floor((this.accumulated % (1000 * 60 * 60)) / (1000 * 60));
+                    seconds = Math.floor((this.accumulated % (1000 * 60)) / 1000);
+
+                    // Display the result in the element with id="timer"
+                    document.getElementById("rest-bank").innerHTML = 
+                    rest_timer_h + "h " + rest_timer_m + "m " + rest_timer_s + "s "
+                    + " + " +
+                    hours + "h " + minutes + "m " + seconds + "s ";
+                }, 1000);
+            },
+
+            pause: function() {
+                clearInterval(this.interval);
+                delete this.interval;
+            },
+
+            resume: function() {
+                if (!this.interval) this.start();
+            }
+        };
+        
+        // Called when the timer has ended
+        function timer_callback () {
+            switch(status_flag) {
+                case 1: // Finished work timer, start stocking rest
+                    console.log("timer  callback: status " + status_flag);
+                    document.getElementById("status").innerHTML = "Stocking rest";
+                    document.getElementById("button").innerHTML = "REST";
+                    Counter.start(rest_timer);
+                    status_flag = 2;
+                    break;
+                case 3: // Resting
+                    console.log("timer  callback: status " + status_flag);
+                    document.getElementById("status").innerHTML = "Procastinating";
+                    document.getElementById("button").innerHTML = "WORK";
+                    work_left = work_timer;
+                    status_flag = 0;
+                    break;
+                }
+            }
+            
+        document.getElementById("button").onclick = function () {
+            switch(status_flag) {
+                case 0: // Paused, waiting for work, press to work
+                    console.log("buttom press: status " + status_flag);
+                    document.getElementById("status").innerHTML = "Working";
+                    // return_flag = countdown(10*1000);
+                    status_flag = 1;
+                    Timer.resume(work_left);
+                    break;
+                case 1: // Working, press to pause work
+                    console.log("buttom press: status " + status_flag);
+                    document.getElementById("status").innerHTML = "Work Paused";
+                    // return_flag = countdown(rest_bank);
+                    Timer.pause();
+                    status_flag = 0;
+                    break;
+                case 2: // Working and stocking rest, press to start resting
+                    console.log("buttom press: status " + status_flag);
+                    document.getElementById("status").innerHTML = "Resting";
+                    document.getElementById("button").innerHTML = "STOP REST";
+                    Counter.pause();
+                    Timer.start(rest_bank+rest_timer);
+                    status_flag = 3;
+                    break;
+                case 3: // Resting, press to pause rest
+                    console.log("buttom press: status " + status_flag);
+                    Timer.pause();
+                    status_flag = 4;
+                    break;
+                case 4: // Paused resting, press to resume resting
+                    console.log("buttom press: status " + status_flag);
+                    Counter.resume();
+                    status_flag=3;
+                    break;
+            }
+        };
+        
+        document.getElementById("set-work").onclick = function() {
+            work_min = document.getElementById("work-min").value;
+            work_sec = document.getElementById("work-sec").value;
+            work_timer = work_min * 60 + work_sec * 1000;
+            console.log(work_timer);
+        }
+        
+        document.getElementById("set-rest").onclick = function() {
+            rest_min = document.getElementById("rest-min").value;
+            rest_sec = document.getElementById("rest-sec").value;
+            rest_timer = rest_min * 60 + rest_sec * 1000;
+            console.log(rest_timer);
+        }
+        
+        // 
+        // https://stackoverflow.com/questions/29971898/how-to-create-an-accurate-timer-in-javascript
+        // https://code.likeagirl.io/how-to-make-a-server-side-timer-with-phoenix-websockets-96d0e1e56f2d
+        
+    </script>
+</body>
+</html>
