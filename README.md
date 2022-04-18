@@ -1,1 +1,3 @@
 # pomodoro
+
+Revolutionary Pomodoro Timer
